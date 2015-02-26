@@ -33,7 +33,15 @@ $(document).ready(function() {
 });
 
 
+<<<<<<< HEAD
 },{"./components/contribute.jsx":304,"./components/main.jsx":307,"./components/signup.jsx":313,"material-ui":34,"react":301,"react-router":126}],2:[function(require,module,exports){
+=======
+<<<<<<< HEAD
+},{"./components/contribute.jsx":307,"./components/main.jsx":310,"./components/signup.jsx":316,"material-ui":34,"react":304,"react-router":130}],2:[function(require,module,exports){
+=======
+},{"./components/contribute.jsx":307,"./components/main.jsx":309,"./components/signup.jsx":314,"material-ui":34,"react":304,"react-router":130}],2:[function(require,module,exports){
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 (function (process,global){
 /* @preserve
  * The MIT License (MIT)
@@ -17184,9 +17192,108 @@ var History = {
 };
 
 module.exports = History;
+<<<<<<< HEAD
 
 },{"react/lib/ExecutionEnvironment":162,"react/lib/invariant":280}],106:[function(require,module,exports){
 var PropTypes = require('./PropTypes');
+=======
+},{"react/lib/ExecutionEnvironment":165,"react/lib/invariant":283}],106:[function(require,module,exports){
+"use strict";
+
+var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+/* jshint -W084 */
+var PathUtils = require("./PathUtils");
+<<<<<<< HEAD
+
+function deepSearch(route, pathname, query) {
+  // Check the subtree first to find the most deeply-nested match.
+  var childRoutes = route.childRoutes;
+  if (childRoutes) {
+    var match, childRoute;
+    for (var i = 0, len = childRoutes.length; i < len; ++i) {
+      childRoute = childRoutes[i];
+
+=======
+
+function deepSearch(route, pathname, query) {
+  // Check the subtree first to find the most deeply-nested match.
+  var childRoutes = route.childRoutes;
+  if (childRoutes) {
+    var match, childRoute;
+    for (var i = 0, len = childRoutes.length; i < len; ++i) {
+      childRoute = childRoutes[i];
+
+>>>>>>> fixes browserify errors
+      if (childRoute.isDefault || childRoute.isNotFound) continue; // Check these in order later.
+
+      if (match = deepSearch(childRoute, pathname, query)) {
+        // A route in the subtree matched! Add this route and we're done.
+        match.routes.unshift(route);
+        return match;
+      }
+    }
+  }
+
+  // No child routes matched; try the default route.
+  var defaultRoute = route.defaultRoute;
+  if (defaultRoute && (params = PathUtils.extractParams(defaultRoute.path, pathname))) {
+    return new Match(pathname, params, query, [route, defaultRoute]);
+  } // Does the "not found" route match?
+  var notFoundRoute = route.notFoundRoute;
+  if (notFoundRoute && (params = PathUtils.extractParams(notFoundRoute.path, pathname))) {
+    return new Match(pathname, params, query, [route, notFoundRoute]);
+  } // Last attempt: check this route.
+  var params = PathUtils.extractParams(route.path, pathname);
+  if (params) {
+    return new Match(pathname, params, query, [route]);
+  }return null;
+}
+
+var Match = (function () {
+  function Match(pathname, params, query, routes) {
+    _classCallCheck(this, Match);
+
+    this.pathname = pathname;
+    this.params = params;
+    this.query = query;
+    this.routes = routes;
+  }
+
+  _prototypeProperties(Match, {
+    findMatch: {
+
+      /**
+       * Attempts to match depth-first a route in the given route's
+       * subtree against the given path and returns the match if it
+       * succeeds, null if no match can be made.
+       */
+
+      value: function findMatch(routes, path) {
+        var pathname = PathUtils.withoutQuery(path);
+        var query = PathUtils.extractQuery(path);
+        var match = null;
+
+        for (var i = 0, len = routes.length; match == null && i < len; ++i) match = deepSearch(routes[i], pathname, query);
+
+        return match;
+      },
+      writable: true,
+      configurable: true
+    }
+  });
+
+  return Match;
+})();
+
+module.exports = Match;
+},{"./PathUtils":109}],107:[function(require,module,exports){
+"use strict";
+
+var PropTypes = require("./PropTypes");
+>>>>>>> tests browserifying node-libspotify modules to client
 
 /**
  * A mixin for components that modify the URL.
@@ -17288,10 +17395,210 @@ var NavigationContext = {
 };
 
 module.exports = NavigationContext;
+<<<<<<< HEAD
 
 },{"./PropTypes":108}],108:[function(require,module,exports){
 var assign = require('react/lib/Object.assign');
 var ReactPropTypes = require('react').PropTypes;
+=======
+},{"./PropTypes":110}],109:[function(require,module,exports){
+"use strict";
+
+var invariant = require("react/lib/invariant");
+var merge = require("qs/lib/utils").merge;
+var qs = require("qs");
+
+var paramCompileMatcher = /:([a-zA-Z_$][a-zA-Z0-9_$]*)|[*.()\[\]\\+|{}^$]/g;
+var paramInjectMatcher = /:([a-zA-Z_$][a-zA-Z0-9_$?]*[?]?)|[*]/g;
+var paramInjectTrailingSlashMatcher = /\/\/\?|\/\?\/|\/\?/g;
+var queryMatcher = /\?(.+)/;
+
+var _compiledPatterns = {};
+
+function compilePattern(pattern) {
+  if (!(pattern in _compiledPatterns)) {
+    var paramNames = [];
+    var source = pattern.replace(paramCompileMatcher, function (match, paramName) {
+      if (paramName) {
+        paramNames.push(paramName);
+        return "([^/?#]+)";
+      } else if (match === "*") {
+        paramNames.push("splat");
+        return "(.*?)";
+      } else {
+        return "\\" + match;
+      }
+    });
+
+    _compiledPatterns[pattern] = {
+      matcher: new RegExp("^" + source + "$", "i"),
+      paramNames: paramNames
+    };
+  }
+<<<<<<< HEAD
+
+  return _compiledPatterns[pattern];
+}
+
+var PathUtils = {
+
+  /**
+   * Returns true if the given path is absolute.
+   */
+  isAbsolute: function isAbsolute(path) {
+    return path.charAt(0) === "/";
+  },
+
+  /**
+   * Joins two URL paths together.
+   */
+  join: function join(a, b) {
+    return a.replace(/\/*$/, "/") + b;
+  },
+
+  /**
+   * Returns an array of the names of all parameters in the given pattern.
+   */
+  extractParamNames: function extractParamNames(pattern) {
+    return compilePattern(pattern).paramNames;
+  },
+
+  /**
+   * Extracts the portions of the given URL path that match the given pattern
+   * and returns an object of param name => value pairs. Returns null if the
+   * pattern does not match the given path.
+   */
+  extractParams: function extractParams(pattern, path) {
+    var _compilePattern = compilePattern(pattern);
+
+=======
+
+  return _compiledPatterns[pattern];
+}
+
+var PathUtils = {
+
+  /**
+   * Returns true if the given path is absolute.
+   */
+  isAbsolute: function isAbsolute(path) {
+    return path.charAt(0) === "/";
+  },
+
+  /**
+   * Joins two URL paths together.
+   */
+  join: function join(a, b) {
+    return a.replace(/\/*$/, "/") + b;
+  },
+
+  /**
+   * Returns an array of the names of all parameters in the given pattern.
+   */
+  extractParamNames: function extractParamNames(pattern) {
+    return compilePattern(pattern).paramNames;
+  },
+
+  /**
+   * Extracts the portions of the given URL path that match the given pattern
+   * and returns an object of param name => value pairs. Returns null if the
+   * pattern does not match the given path.
+   */
+  extractParams: function extractParams(pattern, path) {
+    var _compilePattern = compilePattern(pattern);
+
+>>>>>>> fixes browserify errors
+    var matcher = _compilePattern.matcher;
+    var paramNames = _compilePattern.paramNames;
+
+    var match = path.match(matcher);
+
+    if (!match) {
+      return null;
+    }var params = {};
+
+    paramNames.forEach(function (paramName, index) {
+      params[paramName] = match[index + 1];
+    });
+
+    return params;
+  },
+
+  /**
+   * Returns a version of the given route path with params interpolated. Throws
+   * if there is a dynamic segment of the route path for which there is no param.
+   */
+  injectParams: function injectParams(pattern, params) {
+    params = params || {};
+
+    var splatIndex = 0;
+
+    return pattern.replace(paramInjectMatcher, function (match, paramName) {
+      paramName = paramName || "splat";
+
+      // If param is optional don't check for existence
+      if (paramName.slice(-1) === "?") {
+        paramName = paramName.slice(0, -1);
+
+        if (params[paramName] == null) return "";
+      } else {
+        invariant(params[paramName] != null, "Missing \"%s\" parameter for path \"%s\"", paramName, pattern);
+      }
+
+      var segment;
+      if (paramName === "splat" && Array.isArray(params[paramName])) {
+        segment = params[paramName][splatIndex++];
+
+        invariant(segment != null, "Missing splat # %s for path \"%s\"", splatIndex, pattern);
+      } else {
+        segment = params[paramName];
+      }
+
+      return segment;
+    }).replace(paramInjectTrailingSlashMatcher, "/");
+  },
+
+  /**
+   * Returns an object that is the result of parsing any query string contained
+   * in the given path, null if the path contains no query string.
+   */
+  extractQuery: function extractQuery(path) {
+    var match = path.match(queryMatcher);
+    return match && qs.parse(match[1]);
+  },
+
+  /**
+   * Returns a version of the given path without the query string.
+   */
+  withoutQuery: function withoutQuery(path) {
+    return path.replace(queryMatcher, "");
+  },
+
+  /**
+   * Returns a version of the given path with the parameters in the given
+   * query merged into the query string.
+   */
+  withQuery: function withQuery(path, query) {
+    var existingQuery = PathUtils.extractQuery(path);
+
+    if (existingQuery) query = query ? merge(existingQuery, query) : existingQuery;
+
+    var queryString = qs.stringify(query, { indices: false });
+
+    if (queryString) {
+      return PathUtils.withoutQuery(path) + "?" + queryString;
+    }return path;
+  }
+
+};
+
+module.exports = PathUtils;
+},{"qs":138,"qs/lib/utils":142,"react/lib/invariant":283}],110:[function(require,module,exports){
+"use strict";
+
+var assign = require("react/lib/Object.assign");
+var ReactPropTypes = require("react").PropTypes;
+>>>>>>> tests browserifying node-libspotify modules to client
 
 var PropTypes = assign({
 
@@ -18764,6 +19071,67 @@ function createRouter(options) {
 }
 
 module.exports = createRouter;
+<<<<<<< HEAD
+=======
+}).call(this,require('_process'))
+},{"./Cancellation":103,"./History":105,"./Match":106,"./NavigationContext":108,"./PathUtils":109,"./PropTypes":110,"./Redirect":111,"./Route":112,"./ScrollHistory":114,"./StateContext":116,"./Transition":117,"./actions/LocationActions":118,"./behaviors/ImitateBrowserBehavior":119,"./createRoutesFromReactChildren":128,"./isReactChildren":131,"./locations/HashLocation":132,"./locations/HistoryLocation":133,"./locations/RefreshLocation":134,"./locations/StaticLocation":135,"./supportsHistory":137,"_process":16,"react":304,"react/lib/ExecutionEnvironment":165,"react/lib/invariant":283,"react/lib/warning":303}],128:[function(require,module,exports){
+"use strict";
+
+/* jshint -W084 */
+
+var React = require("react");
+var assign = require("react/lib/Object.assign");
+var warning = require("react/lib/warning");
+var DefaultRouteType = require("./components/DefaultRoute").type;
+var NotFoundRouteType = require("./components/NotFoundRoute").type;
+var RedirectType = require("./components/Redirect").type;
+var Route = require("./Route");
+
+function checkPropTypes(componentName, propTypes, props) {
+  componentName = componentName || "UnknownComponent";
+
+  for (var propName in propTypes) {
+    if (propTypes.hasOwnProperty(propName)) {
+      var error = propTypes[propName](props, propName, componentName);
+<<<<<<< HEAD
+
+      if (error instanceof Error) warning(false, error.message);
+    }
+  }
+}
+
+function createRouteOptions(props) {
+  var options = assign({}, props);
+  var handler = options.handler;
+
+=======
+
+      if (error instanceof Error) warning(false, error.message);
+    }
+  }
+}
+
+function createRouteOptions(props) {
+  var options = assign({}, props);
+  var handler = options.handler;
+
+>>>>>>> fixes browserify errors
+  if (handler) {
+    options.onEnter = handler.willTransitionTo;
+    options.onLeave = handler.willTransitionFrom;
+  }
+
+  return options;
+}
+
+function createRouteFromReactElement(element) {
+  if (!React.isValidElement(element)) {
+    return;
+  }var type = element.type;
+  var props = element.props;
+
+  if (type.propTypes) checkPropTypes(type.displayName, type.propTypes, props);
+>>>>>>> tests browserifying node-libspotify modules to client
 
 }).call(this,require('_process'))
 },{"./Cancellation":103,"./History":105,"./NavigationContext":107,"./PropTypes":108,"./Redirect":109,"./Routing":111,"./Scrolling":112,"./StateContext":114,"./Transition":115,"./actions/LocationActions":116,"./behaviors/ImitateBrowserBehavior":117,"./isReactChildren":127,"./locations/HashLocation":128,"./locations/HistoryLocation":129,"./locations/RefreshLocation":130,"./utils/Path":132,"./utils/supportsHistory":134,"_process":16,"react":301,"react/lib/ExecutionEnvironment":162,"react/lib/invariant":280,"react/lib/warning":300}],126:[function(require,module,exports){
@@ -19046,9 +19414,126 @@ var RefreshLocation = {
 };
 
 module.exports = RefreshLocation;
+<<<<<<< HEAD
 
 },{"../History":105,"./HistoryLocation":129}],131:[function(require,module,exports){
 var createRouter = require('./createRouter');
+=======
+},{"../History":105,"./HistoryLocation":133}],135:[function(require,module,exports){
+"use strict";
+<<<<<<< HEAD
+
+var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var invariant = require("react/lib/invariant");
+
+function throwCannotModify() {
+  invariant(false, "You cannot modify a static location");
+}
+
+/**
+ * A location that only ever contains a single path. Useful in
+ * stateless environments like servers where there is no path history,
+ * only the path that was used in the request.
+ */
+
+var StaticLocation = (function () {
+  function StaticLocation(path) {
+    _classCallCheck(this, StaticLocation);
+
+    this.path = path;
+  }
+
+  _prototypeProperties(StaticLocation, null, {
+    getCurrentPath: {
+      value: function getCurrentPath() {
+        return this.path;
+      },
+      writable: true,
+      configurable: true
+    },
+    toString: {
+      value: function toString() {
+        return "<StaticLocation path=\"" + this.path + "\">";
+      },
+      writable: true,
+      configurable: true
+    }
+  });
+
+  return StaticLocation;
+})();
+
+// TODO: Include these in the above class definition
+// once we can use ES7 property initializers.
+StaticLocation.prototype.push = throwCannotModify;
+StaticLocation.prototype.replace = throwCannotModify;
+StaticLocation.prototype.pop = throwCannotModify;
+
+module.exports = StaticLocation;
+},{"react/lib/invariant":283}],136:[function(require,module,exports){
+"use strict";
+
+=======
+
+var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var invariant = require("react/lib/invariant");
+
+function throwCannotModify() {
+  invariant(false, "You cannot modify a static location");
+}
+
+/**
+ * A location that only ever contains a single path. Useful in
+ * stateless environments like servers where there is no path history,
+ * only the path that was used in the request.
+ */
+
+var StaticLocation = (function () {
+  function StaticLocation(path) {
+    _classCallCheck(this, StaticLocation);
+
+    this.path = path;
+  }
+
+  _prototypeProperties(StaticLocation, null, {
+    getCurrentPath: {
+      value: function getCurrentPath() {
+        return this.path;
+      },
+      writable: true,
+      configurable: true
+    },
+    toString: {
+      value: function toString() {
+        return "<StaticLocation path=\"" + this.path + "\">";
+      },
+      writable: true,
+      configurable: true
+    }
+  });
+
+  return StaticLocation;
+})();
+
+// TODO: Include these in the above class definition
+// once we can use ES7 property initializers.
+StaticLocation.prototype.push = throwCannotModify;
+StaticLocation.prototype.replace = throwCannotModify;
+StaticLocation.prototype.pop = throwCannotModify;
+
+module.exports = StaticLocation;
+},{"react/lib/invariant":283}],136:[function(require,module,exports){
+"use strict";
+
+>>>>>>> fixes browserify errors
+var createRouter = require("./createRouter");
+>>>>>>> tests browserifying node-libspotify modules to client
 
 /**
  * A high-level convenience method that creates, configures, and
@@ -39539,7 +40024,7 @@ module.exports.getSong = function(songs){
     var song;
     $.ajax({
       type: 'POST',
-      url: '/10songs',
+      url: '/song',
       data: JSON.stringify(songs),
       dataType: 'json',
       contentType: 'application/json',
@@ -39576,7 +40061,7 @@ module.exports.prepareTraining = function(songData, rating){
 
 module.exports.likability = function(song, net){
   if(net !== undefined){
-    var audioDetails = module.exports.formatData(song.audio_summary);
+    var audioDetails = ActionUtils.formatData(song.audio_summary);
     var score = net.run(audioDetails);  
     song.likability = score.rating;
   }
@@ -39601,23 +40086,12 @@ module.exports.likability = function(song, net){
 };
 
 module.exports.dropSongs = function(futureSongs){
-  futureSongs = futureSongs.slice(0,7);
+  futureSongs = futureSongs.slice(0,8);
   return futureSongs;
 }
 
-module.exports.addSongs = function(url, retrained, futureSongs, fetchedSongs, net){
-  return new Promise(function(resolve){
-    getSongs(fetchedSongs, url).then(function(songs){
-      songs.forEach(function(song){
-        fetchedSongs.push([song.title,song.artist_name,song.score]);
-        futureSongs.push(song);
-        song = module.exports.likability(song, net);
-        resolve({futureSongs:futureSongs, fetchedSongs:fetchedSongs});
-      });
-    })
-  });
-};
 
+<<<<<<< HEAD
 var getSongs = function(songs, url){   
   return new Promise(function(resolve){
     $.ajax({
@@ -39640,16 +40114,9 @@ module.exports.modifyPlaylist = function(currentSong, playedSongs){
       playlist = playedSongs.slice(playedSongs.length-10, playedSongs.length);
     }else if( currentSong > 4 && playedSongs.length > 10){
       console.log('second');
+=======
+>>>>>>> tests browserifying node-libspotify modules to client
 
-      playlist = playedSongs.slice(currentSong-5, currentSong+5);
-    }else {
-      console.log('third');
-
-      playlist = playedSongs.slice(0,10);       
-    }
-    console.log('playlist',playlist);
-  return playlist;
-}
 
 module.exports.getBrain = function(){
   return new Promise(function(resolve){
@@ -39736,6 +40203,7 @@ function train (){
     }
 }
 
+<<<<<<< HEAD
 function getSongsAndUpdate(url){
   //use url to hit the corresponding route on the serve to get 3 or 10 songs
   ActionUtils.addSongs(url,retrained, futureSongs, fetchedSongs, net)
@@ -39780,6 +40248,25 @@ function addTrainingData(){
 }
 
 
+=======
+function addSong(retrained){
+  console.log(fetchedSongs);
+  ActionUtils.getSong().then(function(song){
+    console.log('adding Songssss');
+    fetchedSongs.push([song.title,song.artist_name,song.score]);
+    song = ActionUtils.likability(song, net);
+    futureSongs.push(song);
+    futureSongs = ActionUtils.reorder(futureSongs, net, retrained);
+    AppActions.updateFutureList();
+  })
+};
+
+function fillFutureSongs(retrained){
+  for(var i = futureSongs.length-1; i < 10; i++){
+    addSong(retrained);
+  }
+}
+>>>>>>> tests browserifying node-libspotify modules to client
 
 var AppActions = {
 
@@ -39797,8 +40284,15 @@ var AppActions = {
     });
   },    
 
+
   generateFuturePlaylist: function(){
+<<<<<<< HEAD
     getSongsAndUpdate('/11songs');
+=======
+    for(var i = 0; i < 10; i++){
+      addSong(retrained);
+    }
+>>>>>>> tests browserifying node-libspotify modules to client
   },
 
   play: function(){
@@ -39846,48 +40340,59 @@ var AppActions = {
   },
 
   next: function(){
+<<<<<<< HEAD
     var current;
 
     addTrainingData();
 
     if(currentSong <=0 ){
       playedSongs.unshift(futureSongs.shift());
+=======
+    if(currentSong === playedSongs.length -1 || playedSongs.length ===0){
+      playedSongs.push(futureSongs.shift());
+>>>>>>> tests browserifying node-libspotify modules to client
       futureSongs = ActionUtils.dropSongs(futureSongs);
-      getSongsAndUpdate('/3songs');
-      retrained = false;
-      currentSong = 0; 
-      current = playedSongs[0];
-    } else {
-      current = playedSongs[--currentSong];
+      fillFutureSongs(retrained);
+      retrained = false; 
     }
+<<<<<<< HEAD
 
     var playlist = ActionUtils.modifyPlaylist(currentSong, playedSongs);
+=======
+    var current = playedSongs[++currentSong];
+    console.log(futureSongs);
+>>>>>>> tests browserifying node-libspotify modules to client
     AppDispatcher.dispatch({
       actionType: AppConstants.NEXT,
-      played: playlist,
+      played: playedSongs.slice(playedSongs.length-10),
       current: current, 
       future: futureSongs
     });
   }, 
 
   prev: function(){
+<<<<<<< HEAD
 
     addTrainingData();
 
     if(currentSong !== playedSongs.length-1){
       currentSong++;
+=======
+    if(currentSong !== 0){
+      currentSong--;
+>>>>>>> tests browserifying node-libspotify modules to client
     } 
     var current = playedSongs[currentSong];
-    var playlist = ActionUtils.modifyPlaylist(currentSong, playedSongs);
 
     AppDispatcher.dispatch({
       actionType: AppConstants.PREV,
-      played: playlist,
+      played: playedSongs.slice(playedSongs.length-10),
       current: current,
       future: futureSongs
     });
   },
 
+<<<<<<< HEAD
   star: function(stars){
     rating = stars/4;
 
@@ -39902,6 +40407,11 @@ var AppActions = {
   upvote: function(song){
     var audioDetails = song.audio_summary;
     trainingData.push(ActionUtils.prepareTraining(audioDetails,1));
+=======
+  upvote: function(){
+    var audioDetails = playedSongs[currentSong].audio_summary;
+    trainingData.push(ActionUtils.prepareTraining(song),1);
+>>>>>>> tests browserifying node-libspotify modules to client
 
     AppDispatcher.dispatch({
       actionType: AppConstants.UPVOTE,
@@ -39909,9 +40419,15 @@ var AppActions = {
     });
   },
 
+<<<<<<< HEAD
   downvote: function(song){
     var audioDetails = song.audio_summary;
     trainingData.push(ActionUtils.prepareTraining(audioDetails,1)); 
+=======
+  downvote: function(){
+    var audioDetails = playedSongs[currentSong].audio_summary;
+    trainingData.push(ActionUtils.prepareTraining(song),1); 
+>>>>>>> tests browserifying node-libspotify modules to client
     downvotes++;
     if(downvotes >= 3){
       train();
@@ -39928,7 +40444,15 @@ var AppActions = {
 module.exports = AppActions;
 
 
+<<<<<<< HEAD
 },{"../constants/AppConstants.jsx":314,"../dispatcher/AppDispatcher.jsx":315,"./ActionUtils.jsx":302,"bluebird":2,"brain":3}],304:[function(require,module,exports){
+=======
+<<<<<<< HEAD
+},{"../constants/AppConstants.jsx":317,"../dispatcher/AppDispatcher.jsx":318,"./ActionUtils.jsx":305,"bluebird":2,"brain":3}],307:[function(require,module,exports){
+=======
+},{"../constants/AppConstants.jsx":315,"../dispatcher/AppDispatcher.jsx":316,"./ActionUtils.jsx":305,"bluebird":2,"brain":3}],307:[function(require,module,exports){
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 /**
  * @jsx React.DOM
  */
@@ -39965,7 +40489,12 @@ var Signup = React.createClass({displayName: "Signup",
 module.exports = Signup;
 
 
+<<<<<<< HEAD
 },{"material-ui":34,"react":301,"react-router":126}],305:[function(require,module,exports){
+=======
+},{"material-ui":34,"react":304,"react-router":130}],308:[function(require,module,exports){
+<<<<<<< HEAD
+>>>>>>> tests browserifying node-libspotify modules to client
 /**
  * @jsx React.DOM
  */
@@ -40001,7 +40530,13 @@ var CurrentSong = React.createClass({displayName: "CurrentSong",
 
 module.exports = CurrentSong;
 
+<<<<<<< HEAD
 },{"./../actions/AppActions.jsx":303,"react":301}],306:[function(require,module,exports){
+=======
+},{"react":304}],309:[function(require,module,exports){
+=======
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 /**
  * @jsx React.DOM
  */
@@ -40030,7 +40565,15 @@ var Header = React.createClass({displayName: "Header",
 
 module.exports = Header;
 
+<<<<<<< HEAD
 },{"material-ui":34,"react":301}],307:[function(require,module,exports){
+=======
+<<<<<<< HEAD
+},{"material-ui":34,"react":304}],310:[function(require,module,exports){
+=======
+},{"material-ui":34,"react":304}],309:[function(require,module,exports){
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 var React = require('react');
 
 var Header = require('./header.jsx');
@@ -40080,7 +40623,12 @@ var App = React.createClass({displayName: "App",
 module.exports = App;
 
 
+<<<<<<< HEAD
 },{"./../actions/AppActions.jsx":303,"./../stores/AppStore.jsx":316,"./header.jsx":306,"./player.jsx":310,"react":301}],308:[function(require,module,exports){
+=======
+<<<<<<< HEAD
+},{"./../actions/AppActions.jsx":306,"./../stores/AppStore.jsx":319,"./header.jsx":309,"./player.jsx":313,"react":304}],311:[function(require,module,exports){
+>>>>>>> tests browserifying node-libspotify modules to client
 /**
  * @jsx React.DOM
  */
@@ -40133,7 +40681,14 @@ var PlayButton  = React.createClass({displayName: "PlayButton",
 
 module.exports = PlayButton;
 
+<<<<<<< HEAD
 },{"./../actions/AppActions.jsx":303,"material-ui":34,"react":301}],309:[function(require,module,exports){
+=======
+},{"./../actions/AppActions.jsx":306,"material-ui":34,"react":304}],312:[function(require,module,exports){
+=======
+},{"./../actions/AppActions.jsx":306,"./../stores/AppStore.jsx":317,"./header.jsx":308,"./player.jsx":311,"react":304}],310:[function(require,module,exports){
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 /**
  * @jsx React.DOM
  */
@@ -40142,9 +40697,12 @@ var React = require('react');
 var mui = require('material-ui');
 var FloatingActionButton = mui.FloatingActionButton;
 var AppActions = require('./../actions/AppActions.jsx');
-var PlayButton = require('./playButton.jsx');
 
 var PlayerControls = React.createClass({displayName: "PlayerControls",
+
+  play: function(){
+  	AppActions.play();
+  }, 
 
   next: function(){
   	AppActions.next();
@@ -40159,7 +40717,7 @@ var PlayerControls = React.createClass({displayName: "PlayerControls",
     return (
       React.createElement("div", {className: "centered btn-group sp-controls'"}, 
         React.createElement(FloatingActionButton, {iconClassName: "muidocs-icon-action-grade", mini: true, onClick: this.prev}), 
-        React.createElement(PlayButton, {songAudio: this.props.songAudio}), 
+        React.createElement(FloatingActionButton, {iconClassName: "muidocs-icon-action-grade", secondary: true, mini: true, onClick: this.play}), 
         React.createElement(FloatingActionButton, {iconClassName: "muidocs-icon-action-grade", mini: true, onClick: this.next})
       )
     )
@@ -40168,14 +40726,21 @@ var PlayerControls = React.createClass({displayName: "PlayerControls",
 
 module.exports = PlayerControls;
 
+<<<<<<< HEAD
 },{"./../actions/AppActions.jsx":303,"./playButton.jsx":308,"material-ui":34,"react":301}],310:[function(require,module,exports){
+=======
+<<<<<<< HEAD
+},{"./../actions/AppActions.jsx":306,"./playButton.jsx":311,"material-ui":34,"react":304}],313:[function(require,module,exports){
+=======
+},{"./../actions/AppActions.jsx":306,"material-ui":34,"react":304}],311:[function(require,module,exports){
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 /**
  * @jsx React.DOM
  */
 
 var React = require('react');
 var mui = require('material-ui');
-var CurrentSong = require('./currentSong.jsx');
 var PlayerControls = require('./player-controls.jsx');
 var Playlist = require('./playlist.jsx')
 
@@ -40189,11 +40754,21 @@ var Player = React.createClass({displayName: "Player",
   render: function() {
     return (
       React.createElement("div", null, 
+<<<<<<< HEAD
         React.createElement(CurrentSong, {albumArt: this.props.albumArt, 
                      currentSong: this.props.currentSong, 
                     currentArtist: this.props.currentArtist, 
                     fullSong: this.props.fullSong}), 
         React.createElement(PlayerControls, {songAudio: this.props.songAudio}), 
+=======
+        React.createElement("img", {src: this.props.albumArt, className: "sp-album-art"}), 
+        React.createElement("div", {className: "sp-info"}, 
+          React.createElement("div", {className: "sp-title"}, this.props.currentSong), 
+          React.createElement("div", {className: "sp-artist"}, this.props.currentArtist)
+        ), 
+        React.createElement(PlayerControls, null), 
+        React.createElement("audio", {ref: "audio", src: this.props.songAudio}), 
+>>>>>>> tests browserifying node-libspotify modules to client
         React.createElement(Playlist, {className: "playlist", playlist: this.props.playlist}), 
         React.createElement(Playlist, {className: "futureList", playlist: this.props.upcomingSongs})
       )
@@ -40203,7 +40778,15 @@ var Player = React.createClass({displayName: "Player",
 
 module.exports = Player;
 
+<<<<<<< HEAD
 },{"./currentSong.jsx":305,"./player-controls.jsx":309,"./playlist.jsx":312,"material-ui":34,"react":301}],311:[function(require,module,exports){
+=======
+<<<<<<< HEAD
+},{"./currentSong.jsx":308,"./player-controls.jsx":312,"./playlist.jsx":315,"material-ui":34,"react":304}],314:[function(require,module,exports){
+=======
+},{"./player-controls.jsx":310,"./playlist.jsx":313,"material-ui":34,"react":304}],312:[function(require,module,exports){
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 /**
  * @jsx React.DOM
  */
@@ -40231,7 +40814,15 @@ var PlaylistItem = React.createClass({displayName: "PlaylistItem",
 
 module.exports = PlaylistItem;
 
+<<<<<<< HEAD
 },{"./../actions/AppActions.jsx":303,"material-ui":34,"react":301}],312:[function(require,module,exports){
+=======
+<<<<<<< HEAD
+},{"material-ui":34,"react":304}],315:[function(require,module,exports){
+=======
+},{"material-ui":34,"react":304}],313:[function(require,module,exports){
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 /**
  * @jsx React.DOM
  */
@@ -40262,6 +40853,7 @@ var Playlist = React.createClass({displayName: "Playlist",
   },
 
   render: function() {
+    console.log('in this render function',this.props.playlist);
     var items = this.props.playlist.map(function(item, i) {
       return (
         React.createElement("div", {key: item.title, onClick: this.handleRemove.bind(this, i)}, 
@@ -40316,7 +40908,15 @@ var Playlist = React.createClass({displayName: "Playlist",
 module.exports = Playlist;
 
 
+<<<<<<< HEAD
 },{"./../actions/AppActions.jsx":303,"./playlist-item.jsx":311,"material-ui":34,"react":301}],313:[function(require,module,exports){
+=======
+<<<<<<< HEAD
+},{"./../actions/AppActions.jsx":306,"./playlist-item.jsx":314,"material-ui":34,"react":304}],316:[function(require,module,exports){
+=======
+},{"./../actions/AppActions.jsx":306,"./playlist-item.jsx":312,"material-ui":34,"react":304}],314:[function(require,module,exports){
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 /**
  * @jsx React.DOM
  */
@@ -40362,7 +40962,15 @@ var Signup = React.createClass({displayName: "Signup",
 module.exports = Signup;
 
 
+<<<<<<< HEAD
 },{"material-ui":34,"react":301,"react-router":126}],314:[function(require,module,exports){
+=======
+<<<<<<< HEAD
+},{"material-ui":34,"react":304,"react-router":130}],317:[function(require,module,exports){
+=======
+},{"material-ui":34,"react":304,"react-router":130}],315:[function(require,module,exports){
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 var keyMirror = require('keymirror');
 
 module.exports = keyMirror({
@@ -40372,12 +40980,23 @@ module.exports = keyMirror({
   UPVOTE: null,
   DOWNVOTE: null,
   UPDATE_PLAYED: null,
+<<<<<<< HEAD
   UPDATE_FUTURE: null,
   STAR: null,
   SELECT_ANY: null
 });
 
 },{"keymirror":33}],315:[function(require,module,exports){
+=======
+  UPDATE_FUTURE: null
+});
+
+<<<<<<< HEAD
+},{"keymirror":33}],318:[function(require,module,exports){
+=======
+},{"keymirror":33}],316:[function(require,module,exports){
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 var Dispatcher = require('flux').Dispatcher;
 var assign = require('object-assign');
 
@@ -40401,7 +41020,15 @@ var AppDispatcher = assign(new Dispatcher(), {
 
 module.exports = AppDispatcher;
 
+<<<<<<< HEAD
 },{"flux":30,"object-assign":102}],316:[function(require,module,exports){
+=======
+<<<<<<< HEAD
+},{"flux":30,"object-assign":102}],319:[function(require,module,exports){
+=======
+},{"flux":30,"object-assign":102}],317:[function(require,module,exports){
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
 
 var AppDispatcher = require('./../dispatcher/AppDispatcher.jsx');
 var EventEmitter = require('events').EventEmitter;
@@ -40558,4 +41185,12 @@ AppDispatcher.register(function(action) {
 module.exports = AppStore;
 
 
+<<<<<<< HEAD
 },{"./../actions/AppActions.jsx":303,"./../constants/AppConstants.jsx":314,"./../dispatcher/AppDispatcher.jsx":315,"events":13,"object-assign":102}]},{},[1]);
+=======
+<<<<<<< HEAD
+},{"./../actions/AppActions.jsx":306,"./../constants/AppConstants.jsx":317,"./../dispatcher/AppDispatcher.jsx":318,"events":13,"object-assign":102}]},{},[1]);
+=======
+},{"./../actions/AppActions.jsx":306,"./../constants/AppConstants.jsx":315,"./../dispatcher/AppDispatcher.jsx":316,"events":13,"object-assign":102}]},{},[1]);
+>>>>>>> fixes browserify errors
+>>>>>>> tests browserifying node-libspotify modules to client
