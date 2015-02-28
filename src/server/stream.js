@@ -33,51 +33,53 @@ var password = 'supermusicesz';
   
 // }
 
-// var Spotify = require('node-libspotify');
-// var spotify = new Spotify({appkeyFile: appKey});
 
-// module.exports.streamer = function(req, res){
-//   spotify.login(username, password)
-//     .then(function () {
-//       //logged in
-//       console.log('i am logged in to spotify');
-//     })
-//     .catch(function (err) {
-//       //wrong username and/or password
-//     });
+//node-libspotify
+var Spotify = require('node-libspotify');
+var spotify = new Spotify({appkeyFile: appKey});
 
-//   var track = {
-//     uri: uri
-//   };
-//   spotify.player.on('play', function (track) { /* play event */ });
-//   spotify.player.on('pause', function () { /* pause event */ });
-//   spotify.player.on('progress', function (progress) { /* progress event */ });
-//   spotify.player.play(track);
+module.exports.streamer = function(req, res){
+  spotify.login(username, password)
+    .then(function () {
+      //logged in
+      console.log('i am logged in to spotify');
+    })
+    .catch(function (err) {
+      //wrong username and/or password
+    });
+
+  var track = {
+    uri: uri
+  };
+  spotify.player.on('play', function (track) { /* play event */ });
+  spotify.player.on('pause', function () { /* pause event */ });
+  spotify.player.on('progress', function (progress) { /* progress event */ });
+  spotify.player.play(track);
   
-// }
+}
 
 
 //node-spotify
-var spotify = require('node-spotify')({appkeyFile: appKey});
+// var spotify = require('node-spotify')({appkeyFile: appKey});
 
-module.exports.streamer = function(req, res){
-  var ready = function() {
-      console.log('node-spotify is ready to exeute more code!');
-      //your apps functionality should start here
+// module.exports.streamer = function(req, res){
+//   var ready = function() {
+//       console.log('node-spotify is ready to exeute more code!');
+//       //your apps functionality should start here
 
-        var track = {
-          uri: uri
-        };
-      spotify.player.play(track); 
-  };
+//         var track = {
+//           uri: uri
+//         };
+//       spotify.player.play(track); 
+//   };
 
-  spotify.on({
-      ready: ready
-  });
+//   spotify.on({
+//       ready: ready
+//   });
 
-  spotify.login(username, password, false, false);
+//   spotify.login(username, password, false, false);
   
-}
+// }
 
 
  
