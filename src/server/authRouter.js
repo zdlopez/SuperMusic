@@ -1,6 +1,7 @@
 var express = require('express');
 var auth = require('./auth.js');
 var requestHandler = require('./requestHandler.js');
+var stream = require('./stream.js');
 var Path = require('path');
 
 var authRouter = express.Router();
@@ -16,6 +17,8 @@ authRouter.get('/', ensureAuthenticated,
   function(req, res) {
     res.sendFile(build + '/index.html');
 });
+
+authRouter.get('/streaming', ensureAuthenticated, stream.streamer);
 
 authRouter.get('/training-worker.js', ensureAuthenticated, requestHandler.trainingWorker);
 
